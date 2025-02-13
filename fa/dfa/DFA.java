@@ -1,11 +1,8 @@
 package fa.dfa;
 
-import fa.FAInterface;
-
-
-public interface DFAInterface extends FAInterface {
-
-	/**
+/** DFA class that implements DFA Interfaces */
+public class DFA implements DFAInterface {
+    /**
 	 * Construct the textual representation of the DFA, for example
 	 * A simple two state DFA
 	 * Q = { a b }
@@ -21,7 +18,9 @@ public interface DFAInterface extends FAInterface {
 	 * in which they were instantiated in the DFA.
 	 * @return String representation of the DFA
 	 */
-	public abstract String toString();
+	public abstract String toString() {
+        
+    }
 	
 	
 	/**
@@ -31,7 +30,9 @@ public interface DFAInterface extends FAInterface {
 	 * @param onSymb is the symbol from the DFA's alphabet.
 	 * @return true if successful and false if one of the states don't exist or the symbol in not in the alphabet
 	 */
-	public  boolean addTransition(String fromState, String toState, char onSymb);
+	public  boolean addTransition(String fromState, String toState, char onSymb) {
+
+    }
 	
 	
 	
@@ -42,7 +43,8 @@ public interface DFAInterface extends FAInterface {
 	 * and symb2.
 	 * @return a copy of this DFA
 	 */
-	public DFA swap(char symb1, char symb2);
+	public DFA swap(char symb1, char symb2) {
 
-
+    }
+    
 }
