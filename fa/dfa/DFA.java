@@ -13,9 +13,9 @@ import java.util.HashMap;
 public class DFA implements DFAInterface {
 
     // 5-Tuple Variables
-    private Set<String> states;
+    private Set<DFAState> states;
     private Set<Character> sigma;
-    private Map<String, Map<Character, String>> transitionTable;
+    private Map<DFAState, Map<Character, DFAState>> transitionTable;
     private String startingState;
     private Set<String> finalStates;
 
@@ -51,7 +51,7 @@ public class DFA implements DFAInterface {
 	 */
 	public String toString() {
 
-        Iterator<String> stateIterator = states.iterator();
+        Iterator<DFAState> stateIterator = states.iterator();
         Iterator<Character> alphabetIterator = sigma.iterator();
         Iterator<String> finalStateIterator = finalStates.iterator();
         String returnString;
@@ -77,8 +77,19 @@ public class DFA implements DFAInterface {
         }
         returnString += "\n";
 
-        while (stateIterator.hasNext()) { // for each state
-            // TODO**************************
+        for (DFAState state : states) { // for each state
+            returnString += state.getName() + "\t";
+            Map<Character, DFAState> transitions = transitionTable.get(state);
+
+            for (char symb : sigma) { // for each character in the alphabet
+                if (transitions != null && transitions.containsKey(symb)) {
+                    returnString += transitions.get(symb) + "\t";
+                } 
+                // else {
+                //     sb.append("-\t"); // Placeholder for missing transitions
+                // }
+            }
+            returnString += "\n";
         }
 
         // Print starting state
@@ -104,17 +115,19 @@ public class DFA implements DFAInterface {
 	 * @return true if successful and false if one of the states don't exist or the symbol in not in the alphabet
 	 */
 	public boolean addTransition(String fromState, String toState, char onSymb) {
-        if (!states.contains(fromState) || !states.contains(toState) || !sigma.contains(onSymb)) {
+
+        DFAState from = getStateByName(fromState);
+        DFAState to = getStateByName(toState);
+
+        if (from == null || to == null || !sigma.contains(onSymb)) {
             return false;
         }
-        // if the fromState is not already in the transition table, add it
-        if (!transitionTable.containsKey(fromState)) {
-            transitionTable.put(fromState, new HashMap<>());
-        }
 
-        // add the transition to the table
-        transitionTable.get(fromState).put(onSymb, toState);
+        // Add fromState if missing
+        transitionTable.putIfAbsent(from, new HashMap<>());
 
+        // Add transition to table
+        transitionTable.get(from).put(onSymb, to);
         return true;
     }
 	
@@ -132,13 +145,14 @@ public class DFA implements DFAInterface {
         return new DFA();
     }
 
-    	/**
+    /**
 	 * Adds a a state to the FA instance
 	 * @param name is the label of the state 
 	 * @return true if a new state created successfully and false if there is already state with such name
 	 */
 	public boolean addState(String name) {
-        return states.add(name);
+        DFAState state = new DFAState(name);
+        return states.add(state);
     }
 
 	/**
@@ -147,12 +161,12 @@ public class DFA implements DFAInterface {
 	 * @return true if successful and false if no state with such name exists
 	 */
 	public boolean setFinal(String name) {
-        if (states.contains(name)) {
-            finalStates.add(name);
+        DFAState state = getStateByName(name);
+        if (state != null) {
+            finalStates.add(state.getName());
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 	
 	/**
@@ -161,12 +175,12 @@ public class DFA implements DFAInterface {
 	 * @return true if successful and false if no state with such name exists
 	 */
 	public boolean setStart(String name) {
-        if (states.contains(name)) {
-            startingState = name;
+        DFAState state = getStateByName(name);
+        if (state != null) {
+            startingState = state.getName();
             return true;
-        } else {
-            return false;
-        } 
+        }
+        return false;
     }
 	
 	/**
@@ -185,8 +199,15 @@ public class DFA implements DFAInterface {
 	 * @return true if s in the language of the DFA and false otherwise
 	 */
 	public boolean accepts(String s) {
-        // TODO
-        return true;
+        DFAState currentState = getStateByName(startingState);
+        if (currentState == null) return false;
+
+        for (char c : s.toCharArray()) {
+            if (!sigma.contains(c)) return false;
+            currentState = transitionTable.getOrDefault(currentState, new HashMap<>()).get(c);
+            if (currentState == null) return false;
+        }
+        return finalStates.contains(currentState.getName());
     }
 	
 	
@@ -205,8 +226,7 @@ public class DFA implements DFAInterface {
 	 * @return state object or null
 	 */
 	public State getState(String name) {
-        // TODO
-        return null;
+        return getStateByName(name);
     }
         
 	/**
@@ -225,6 +245,16 @@ public class DFA implements DFAInterface {
 	 */
 	public boolean isStart(String name) {
         return name.equals(startingState);
+    }
+
+    /** Helper method to return state object by name */
+    private DFAState getStateByName(String name) {
+        for (DFAState state : states) {
+            if (state.getName().equals(name)) {
+                return state;
+            }
+        }
+        return null;
     }
     
 }
