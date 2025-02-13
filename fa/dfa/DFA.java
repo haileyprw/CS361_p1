@@ -1,6 +1,9 @@
 package fa.dfa;
 
 import java.util.Set;
+
+import fa.State;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -101,7 +104,18 @@ public class DFA implements DFAInterface {
 	 * @return true if successful and false if one of the states don't exist or the symbol in not in the alphabet
 	 */
 	public boolean addTransition(String fromState, String toState, char onSymb) {
-        // TODO
+        if (!states.contains(fromState) || !states.contains(toState) || !sigma.contains(onSymb)) {
+            return false;
+        }
+        // if the fromState is not already in the transition table, add it
+        if (!transitionTable.containsKey(fromState)) {
+            transitionTable.put(fromState, new HashMap<>());
+        }
+
+        // add the transition to the table
+        transitionTable.get(fromState).put(onSymb, toState);
+
+        return true;
     }
 	
 	
@@ -115,6 +129,7 @@ public class DFA implements DFAInterface {
 	 */
 	public DFA swap(char symb1, char symb2) {
         // TODO
+        return new DFA();
     }
 
     	/**
@@ -171,6 +186,7 @@ public class DFA implements DFAInterface {
 	 */
 	public boolean accepts(String s) {
         // TODO
+        return true;
     }
 	
 	
@@ -190,9 +206,9 @@ public class DFA implements DFAInterface {
 	 */
 	public State getState(String name) {
         // TODO
+        return null;
     }
-	
-	
+        
 	/**
 	 * Determines if a state with a given name is final
 	 * @param name the name of the state
