@@ -3,7 +3,7 @@ import java.util.HashMap;
 /* Extends fa.State */
 public class DFAState extends fa.State {
 
-    private boolean fin;
+    private boolean fin; //Accepting State
     private HashMap<Character, DFAState> delta = new HashMap<>();
 
     public DFAState(String name) {
