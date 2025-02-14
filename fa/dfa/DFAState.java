@@ -4,10 +4,11 @@ import java.util.HashMap;
 public class DFAState extends fa.State {
 
     private boolean fin; //Accepting State
-    private HashMap<Character, DFAState> delta = new HashMap<>();
+    private HashMap<Character, DFAState> delta;
 
     public DFAState(String name) {
         super(name);
+        this.delta = new HashMap<>();
         this.fin = false;
     }
 
@@ -16,8 +17,15 @@ public class DFAState extends fa.State {
      * @param c
      * @param state
      */
-    public void addTransition(Character c, DFAState state) {
-        delta.put(c, state);
+    public void addNextState(Character c, DFAState state) {
+        this.delta.put(c, state);
+    }
+
+    /**
+     * Remove a transition
+     */
+    public void removeNextState(Character c) {
+        this.delta.remove(c);
     }
 
     /**
@@ -26,7 +34,7 @@ public class DFAState extends fa.State {
      * @return
      */
     public DFAState getNextState(Character c) {
-        return delta.get(c);
+        return this.delta.get(c);
     }
 
     /**
@@ -41,15 +49,15 @@ public class DFAState extends fa.State {
      * @return
      */
     public boolean isFinalState() {
-        return fin;
+        return this.fin;
     }
 
     /**
      * Get transition table for this state
      * @return
      */
-    public HashMap<Character, DFAState> getTransitions() {
-        return delta;
+    public HashMap<Character, DFAState> getNextState() {
+        return new HashMap<>(this.delta);
     }
 
 
