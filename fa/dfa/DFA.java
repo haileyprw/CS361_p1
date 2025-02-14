@@ -5,7 +5,6 @@ import java.util.Set;
 import fa.State;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -16,8 +15,8 @@ public class DFA implements DFAInterface {
     private Set<DFAState> states;
     private Set<Character> sigma;
     private Map<DFAState, Map<Character, DFAState>> transitionTable;
-    private String startingState;
-    private Set<String> finalStates;
+    private DFAState startingState;
+    private Set<DFAState> finalStates;
 
     /** 
      * 
@@ -50,60 +49,33 @@ public class DFA implements DFAInterface {
 	 * @return String representation of the DFA
 	 */
 	public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Q = { ");
+        for (DFAState state : states) sb.append(state.getName()).append(" ");
+        sb.append("}\n");
 
-        Iterator<DFAState> stateIterator = states.iterator();
-        Iterator<Character> alphabetIterator = sigma.iterator();
-        Iterator<String> finalStateIterator = finalStates.iterator();
-        String returnString;
+        sb.append("Sigma = { ");
+        for (char c : sigma) sb.append(c).append(" ");
+        sb.append("}\n");
 
-        // Print States
-        returnString = "Q = { ";
-        while (stateIterator.hasNext()) {
-            returnString += stateIterator.next() + " ";
-        }
-        returnString += "}\n";
+        sb.append("delta =\n\t");
+        for (char c : sigma) sb.append(c).append("\t");
+        sb.append("\n");
 
-        // Print alphabet
-        returnString += "Sigma = { ";
-        while (alphabetIterator.hasNext()) {
-            returnString += alphabetIterator.next() + " ";
-        }
-        returnString += "}\n";
-
-        // Print transition table
-        returnString += "delta =\n\t";
-        while (alphabetIterator.hasNext()) {
-            returnString += alphabetIterator.next() + "\t"; // print alphabet column header
-        }
-        returnString += "\n";
-
-        for (DFAState state : states) { // for each state
-            returnString += state.getName() + "\t";
-            Map<Character, DFAState> transitions = transitionTable.get(state);
-
-            for (char symb : sigma) { // for each character in the alphabet
-                if (transitions != null && transitions.containsKey(symb)) {
-                    returnString += transitions.get(symb) + "\t";
-                } 
-                // else {
-                //     sb.append("-\t"); // Placeholder for missing transitions
-                // }
+        for (DFAState state : states) {
+            sb.append(state.getName()).append("\t");
+            Map<Character, DFAState> transitions = transitionTable.getOrDefault(state, new HashMap<>());
+            for (char c : sigma) {
+                sb.append(transitions.getOrDefault(c, new DFAState("-"))).append("\t");
             }
-            returnString += "\n";
+            sb.append("\n");
         }
 
-        // Print starting state
-        returnString += "q0 = " + startingState + "\n";
-
-        // Print final state(s)
-        returnString += "F = { ";
-        while (finalStateIterator.hasNext()) {
-            returnString += finalStateIterator.next() + " ";
-        }
-        returnString += "}\n";
-
-
-        return returnString;
+        sb.append("q0 = ").append(startingState).append("\n");
+        sb.append("F = { ");
+        for (DFAState finalState : finalStates) sb.append(finalState).append(" ");
+        sb.append("}\n");
+        return sb.toString();
     }
 	
 	
@@ -163,7 +135,7 @@ public class DFA implements DFAInterface {
 	public boolean setFinal(String name) {
         DFAState state = getStateByName(name);
         if (state != null) {
-            finalStates.add(state.getName());
+            finalStates.add(state);
             return true;
         }
         return false;
@@ -177,7 +149,7 @@ public class DFA implements DFAInterface {
 	public boolean setStart(String name) {
         DFAState state = getStateByName(name);
         if (state != null) {
-            startingState = state.getName();
+            startingState = state;
             return true;
         }
         return false;
@@ -199,15 +171,22 @@ public class DFA implements DFAInterface {
 	 * @return true if s in the language of the DFA and false otherwise
 	 */
 	public boolean accepts(String s) {
-        DFAState currentState = getStateByName(startingState);
-        if (currentState == null) return false;
+        
+        if (startingState == null) {
+            return false;
+        }
+        DFAState currentState = startingState;
 
         for (char c : s.toCharArray()) {
-            if (!sigma.contains(c)) return false;
+            if (!sigma.contains(c)) {
+                return false;
+            }
             currentState = transitionTable.getOrDefault(currentState, new HashMap<>()).get(c);
-            if (currentState == null) return false;
+            if (currentState == null) {
+                return false;
+            }
         }
-        return finalStates.contains(currentState.getName());
+        return finalStates.contains(currentState);
     }
 	
 	
@@ -235,7 +214,11 @@ public class DFA implements DFAInterface {
 	 * @return true if a state with that name exists and it is final
 	 */
 	public boolean isFinal(String name) {
-        return finalStates.contains(name);
+        DFAState state = getStateByName(name);
+        if (state != null && finalStates.contains(state)) {
+            return true;
+        }
+        return false;
     }
 	
 	/**
@@ -244,7 +227,10 @@ public class DFA implements DFAInterface {
 	 * @return true if a state with that name exists and it is the start state
 	 */
 	public boolean isStart(String name) {
-        return name.equals(startingState);
+        if (startingState != null && startingState.getName().equals(name)) {
+            return true;
+        }
+        return false;
     }
 
     /** Helper method to return state object by name */
