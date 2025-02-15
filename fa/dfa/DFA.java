@@ -120,26 +120,26 @@ public class DFA implements DFAInterface {
 	public DFA swap(char symb1, char symb2) {
         DFA swapCopy = new DFA();
 
-        // for (Character s : sigma) { //Copy over alphabet
-        //     swapCopy.addSigma(s);
-        //     // if (symb1.equals(Character.valueOf(s))) { //
-        //     //     symb1 = s;
-        //     // }
-        //     // if (symb2.equals(Character.valueOf(s))) {
-        //     //     symb2 = s;
-        //     // }
-        // }
+        for (Character s : this.sigma) { //Copy over alphabet
+            swapCopy.addSigma(s);
+        }
 
-        // for (DFAState state : states) {
-        //     swapCopy.addState(state.getName());
+        for (DFAState state : this.states) {
+            swapCopy.addState(state.getName());
+        }
 
-        // }
+        swapCopy.setStart(startingState.getName());
 
-        // for () {
+        for (DFAState fin : this.finalStates) {
+            swapCopy.setFinal(fin.getName());
+        }
 
-        // }
+        for (DFAState state : this.states) {
+            swapCopy.addTransition(state.getName(), state.getNextState(symb1).getName(), symb2);
+            swapCopy.addTransition(state.getName(), state.getNextState(symb2).getName(), symb1);
+        }
 
-        return new DFA();
+        return swapCopy;
     }
 
     /**
@@ -226,7 +226,7 @@ public class DFA implements DFAInterface {
 	 * @return the alphabet of FA
 	 */
 	public Set<Character> getSigma() {
-        return new HashSet<>(sigma);
+        return new LinkedHashSet<>(sigma);
     }
 	
 	
