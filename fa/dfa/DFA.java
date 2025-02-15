@@ -5,6 +5,7 @@ import java.util.Set;
 import fa.State;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -25,10 +26,10 @@ public class DFA implements DFAInterface {
      * */
     public DFA() {
         // Instance variables
-        this.states = new HashSet<>();
-        this.sigma = new HashSet<>();
+        this.states = new LinkedHashSet<>();
+        this.sigma = new LinkedHashSet<>();
         this.transitionTable = new HashMap<>();
-        this.finalStates = new HashSet<>();
+        this.finalStates = new LinkedHashSet<>();
     }
 
 
